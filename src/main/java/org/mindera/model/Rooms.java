@@ -1,5 +1,6 @@
 package org.mindera.model;
 
+import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,8 +11,7 @@ import org.bson.types.ObjectId;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Rooms {
-    private Long id;
+public class Rooms extends PanacheMongoEntity {
     private RoomType roomType;
     private boolean available;
     private Reservations reservations;

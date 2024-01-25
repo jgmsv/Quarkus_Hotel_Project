@@ -13,7 +13,6 @@ import java.util.Set;
 @MongoEntity(collection = "Hotels", database = "my-mongodb")
 @ApplicationScoped
 public class Hotel extends PanacheMongoEntity {
-    private Long id;
     private String hotelN;
     private String location;
     private Set<Rooms> rooms;

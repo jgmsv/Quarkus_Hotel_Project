@@ -18,7 +18,7 @@ public class HotelService {
 
     @POST
     public Hotel add(Hotel hotel) {
-        hotel.persistOrUpdate();
+        hotel.persist();
         return hotel;
     }
     @GET

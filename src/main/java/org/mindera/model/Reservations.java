@@ -1,5 +1,6 @@
 package org.mindera.model;
 
+import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,9 +12,8 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Reservations {
-    private Long id;
-    private Long roomId;
+public class Reservations extends PanacheMongoEntity {
+    private ObjectId roomId;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
 }
