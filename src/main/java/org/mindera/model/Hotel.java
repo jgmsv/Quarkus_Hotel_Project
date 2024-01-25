@@ -17,4 +17,8 @@ public class Hotel extends PanacheMongoEntity {
     private String location;
     private Set<Rooms> rooms;
 
+    public Set<Rooms> getRooms() {
+        return rooms;
+    }
+
 }
