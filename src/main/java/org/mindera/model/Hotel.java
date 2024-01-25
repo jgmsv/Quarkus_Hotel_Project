@@ -5,7 +5,7 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.Getter;
 import lombok.Setter;
-import org.bson.types.ObjectId;
+
 
 import java.util.Set;
 @Getter

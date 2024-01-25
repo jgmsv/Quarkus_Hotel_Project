@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Reservations extends PanacheMongoEntity {
-    private ObjectId roomId;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
+
 }
