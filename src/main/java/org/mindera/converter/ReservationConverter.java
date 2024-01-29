@@ -5,7 +5,7 @@ import org.mindera.model.Reservations;
 
 public class ReservationConverter {
 
-    public static Reservations dtoToReservation (CreateReservationDto createReservationDto){
+    public static Reservations dtoToReservations(CreateReservationDto createReservationDto) {
         return Reservations.builder()
                 .available(createReservationDto.available())
                 .checkInDate(createReservationDto.checkInDate())

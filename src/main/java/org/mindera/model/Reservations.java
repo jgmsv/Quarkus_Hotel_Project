@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+
 public class Reservations extends PanacheMongoEntity {
     private boolean available;
     private LocalDate checkInDate;

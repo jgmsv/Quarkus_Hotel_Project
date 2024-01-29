@@ -10,5 +10,7 @@ public record HotelGetDto(
         Set<Rooms> rooms
 ) {
 
+    //Separar as reserva
+    //Criar
 
 }

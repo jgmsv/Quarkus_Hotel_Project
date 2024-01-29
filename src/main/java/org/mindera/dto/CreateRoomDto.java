@@ -1,16 +1,16 @@
 package org.mindera.dto;
 
+import jakarta.persistence.Column;
 import lombok.*;
 import org.mindera.model.Reservations;
 import org.mindera.model.RoomType;
 
-@Builder
-@Getter
-@Setter
+
 public record CreateRoomDto(
+        int roomNumber,
         RoomType roomType,
         boolean available,
-        Reservations reservations
+        CreateReservationDto reservations
 ) {
 
 

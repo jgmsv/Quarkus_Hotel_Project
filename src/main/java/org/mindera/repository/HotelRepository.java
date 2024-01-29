@@ -3,6 +3,7 @@ package org.mindera.repository;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.mindera.model.Hotel;
+import org.mindera.model.Rooms;
 
 import java.util.Optional;
 

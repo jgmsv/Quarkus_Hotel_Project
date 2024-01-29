@@ -8,11 +8,11 @@ import java.util.List;
 
 public class HotelConverter {
 
-    public static Hotel dtoToHotel(CreateHotelDto createHotelDto){
+    public static Hotel dtoToHotel(CreateHotelDto createHotelDto) {
         return Hotel.builder()
                 .hotelN(createHotelDto.hotelN())
                 .location(createHotelDto.location())
-                .rooms(createHotelDto.getRooms())
+                .rooms(RoomsConverter.dtoToRoomsSet(createHotelDto.rooms()))
                 .build();
     }
 
@@ -29,5 +29,6 @@ public class HotelConverter {
                 .map(HotelConverter::hotelToDto)
                 .toList();
     }
+
 
 }

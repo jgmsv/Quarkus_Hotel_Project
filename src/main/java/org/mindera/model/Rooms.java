@@ -8,6 +8,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 public class Rooms extends PanacheMongoEntity {
+    int roomNumber;
     private RoomType roomType;
     private Reservations reservations;
 
