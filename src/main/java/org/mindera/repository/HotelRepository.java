@@ -1,14 +1,16 @@
 package org.mindera.repository;
 
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+
+import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.mindera.model.Hotel;
-import org.mindera.model.Rooms;
 
 import java.util.Optional;
 
 @ApplicationScoped
-public interface HotelRepository extends PanacheRepository<Hotel> {
+public class HotelRepository implements PanacheMongoRepository<Hotel> {
 
-     Optional<Hotel> findByHotelN (String hotelN);
+    public Optional<Hotel> findByHotelN(String hotelN) {
+        return find("hotelN", hotelN).firstResultOptional();
+    }
 }

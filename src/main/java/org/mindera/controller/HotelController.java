@@ -23,27 +23,28 @@ public class HotelController {
     HotelService hotelService;
 
     @POST
-    @Path("/add")
-
-    public Response add(CreateHotelDto hotel) {
-        return Response.ok(add(hotel)).build();
+    public Response add(CreateHotelDto hotel) throws HotelException {
+        return Response.ok(
+                hotelService.addHotel(hotel)).build();
     }
 
-    public Response finAll(){
+    @GET
+    public Response finAll() {
         List<HotelGetDto> findAllHottel = hotelService.findAllHotels();
         return Response.ok(findAllHottel).build();
     }
+
     @PUT
     @Path("/updateReservation/{hotelN}/{roomNumber}")
-    public Response update(String hotelN, int roomNumber, CreateReservationDto reservations) throws RoomException, HotelException {
+    public Response update(@PathParam("hotelN") String hotelN, @PathParam("roomNumber") int roomNumber, CreateReservationDto reservations) throws RoomException, HotelException {
 
         return Response.ok(hotelService.update(hotelN, roomNumber, reservations)).build();
     }
 
 
     @GET
-    @Path("/getHotel/{hotelN}")
-    public Response findHotelByHotelN(String hotelN) throws HotelException {
+    @Path("/HotelName/{hotelN}")
+    public Response findHotelByHotelN(@PathParam("hotelN") String hotelN) throws HotelException {
         return Response.ok(hotelService.findHotelByHotelN(hotelN)).build();
     }
 

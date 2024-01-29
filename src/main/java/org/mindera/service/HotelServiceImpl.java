@@ -1,9 +1,7 @@
 package org.mindera.service;
 
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.PathParam;
 import org.mindera.converter.ReservationConverter;
 import org.mindera.dto.CreateHotelDto;
@@ -23,7 +21,6 @@ import java.util.Optional;
 import static org.mindera.converter.HotelConverter.*;
 
 @ApplicationScoped
-@Transactional
 public class HotelServiceImpl implements HotelService {
 
     @Inject
@@ -38,15 +35,14 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     public List<HotelGetDto> findAllHotels() {
-        PanacheQuery<Hotel> hotelsQuery = hotelRepository.findAll();
-        List<Hotel> hotels = hotelsQuery.list();
+        List<Hotel> hotels = hotelRepository.listAll();
         return hotelToDtoList(hotels);
     }
 
     @Override
-    public HotelGetDto update(@PathParam("hotelN") String hotelN, @PathParam("roomNumber") int roomNumber, CreateReservationDto reservations) throws HotelException, RoomException {
-        Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(()-> new HotelException (Messages.HOTELERROR));
-        Rooms roomToUpdate = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(()-> new RoomException(Messages.ROOMERROR));
+    public HotelGetDto update(String hotelN, int roomNumber, CreateReservationDto reservations) throws HotelException, RoomException {
+        Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelException(Messages.HOTELERROR));
+        Rooms roomToUpdate = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(() -> new RoomException(Messages.ROOMERROR));
         Reservations reservationUpdate = ReservationConverter.dtoToReservations(reservations);
         roomToUpdate.setReservations(reservationUpdate);
         hotelRepository.persist(hotel);
@@ -60,7 +56,7 @@ public class HotelServiceImpl implements HotelService {
         return hotelToDto(hotel);
     }
 
-    @Override
+
     public Optional<Hotel> findByHotelN(@PathParam("hotelN") String hotelN) {
         return hotelRepository.findByHotelN(hotelN);
     }
