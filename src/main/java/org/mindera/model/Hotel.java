@@ -4,9 +4,7 @@ import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.Column;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 
 import java.util.Set;
@@ -15,12 +13,13 @@ import java.util.Set;
 @Builder
 @MongoEntity(collection = "Hotels", database = "my-mongodb")
 @ApplicationScoped
+@NoArgsConstructor
+@AllArgsConstructor
 public class Hotel extends PanacheMongoEntity {
     @Column(unique = true)
     private String hotelN;
     private String location;
     private Set<Rooms> rooms;
 
-    public Hotel() {
-    }
+
 }

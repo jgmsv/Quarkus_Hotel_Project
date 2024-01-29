@@ -10,5 +10,5 @@ import java.util.Optional;
 @ApplicationScoped
 public interface HotelRepository extends PanacheRepository<Hotel> {
 
-    Optional<Hotel> findByHotelN (String hotelN);
+     Optional<Hotel> findByHotelN (String hotelN);
 }
