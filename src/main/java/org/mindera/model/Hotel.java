@@ -12,7 +12,6 @@ import java.util.Set;
 @Setter
 @Builder
 @MongoEntity(collection = "Hotels", database = "my-mongodb")
-@ApplicationScoped
 @NoArgsConstructor
 @AllArgsConstructor
 public class Hotel extends PanacheMongoEntity {
