@@ -12,19 +12,22 @@ public class HotelConverter {
         return Hotel.builder()
                 .hotelN(createHotelDto.hotelN())
                 .location(createHotelDto.location())
+                .phoneNumber(createHotelDto.phoneNumber())
                 .rooms(RoomsConverter.dtoToRoomsSet(createHotelDto.rooms()))
                 .build();
     }
 
-    public static HotelGetDto hotelToDto(Hotel hotel){
+    public static HotelGetDto hotelToDto(Hotel hotel) {
         return new HotelGetDto(
                 hotel.getHotelN(),
                 hotel.getLocation(),
+                hotel.getPhoneNumber(),
                 hotel.getRooms()
+
         );
     }
 
-    public static List<HotelGetDto> hotelToDtoList(List<Hotel> hotels){
+    public static List<HotelGetDto> hotelToDtoList(List<Hotel> hotels) {
         return hotels.stream()
                 .map(HotelConverter::hotelToDto)
                 .toList();

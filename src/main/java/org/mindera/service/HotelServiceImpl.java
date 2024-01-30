@@ -5,12 +5,14 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.PathParam;
 import org.mindera.converter.ReservationConverter;
 import org.mindera.dto.CreateHotelDto;
-import org.mindera.dto.CreateReservationDto;
+import org.mindera.dto.CreateReservationCheckInDto;
+import org.mindera.dto.CreateReservationCheckOutDto;
 import org.mindera.dto.HotelGetDto;
 import org.mindera.model.Hotel;
 import org.mindera.model.Reservations;
 import org.mindera.model.Rooms;
 import org.mindera.repository.HotelRepository;
+import org.mindera.util.exceptions.HotelDuplication;
 import org.mindera.util.exceptions.HotelException;
 import org.mindera.util.exceptions.RoomException;
 import org.mindera.util.messages.Messages;
@@ -27,9 +29,9 @@ public class HotelServiceImpl implements HotelService {
     HotelRepository hotelRepository;
 
     @Override
-    public Hotel addHotel(CreateHotelDto createHotelDto) throws HotelException {
+    public Hotel addHotel(CreateHotelDto createHotelDto) throws HotelException, HotelDuplication {
         Hotel hotel = dtoToHotel(createHotelDto);
-        hotelRepository.persist(hotel);
+        hotel.saveWithUniqueCheck(); //hotelRepository.persist(hotel);
         return hotel;
     }
 
@@ -40,14 +42,32 @@ public class HotelServiceImpl implements HotelService {
     }
 
     @Override
-    public HotelGetDto update(String hotelN, int roomNumber, CreateReservationDto reservations) throws HotelException, RoomException {
+    public HotelGetDto updateRoomCheckInDate(String hotelN, int roomNumber, CreateReservationCheckInDto reservations) throws HotelException, RoomException {
         Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelException(Messages.HOTELERROR));
         Rooms roomToUpdate = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(() -> new RoomException(Messages.ROOMERROR));
-        Reservations reservationUpdate = ReservationConverter.dtoToReservations(reservations);
+        Reservations reservationUpdate = ReservationConverter.dtoToCheckInReservation(reservations);
         roomToUpdate.setReservations(reservationUpdate);
         hotelRepository.persist(hotel);
         return hotelToDto(hotel);
+    }
 
+    @Override
+    public HotelGetDto updateRoomCheckOutDate(String hotelN, int roomNumber, CreateReservationCheckOutDto reservations) throws HotelException, RoomException {
+        Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelException(Messages.HOTELERROR));
+        Rooms roomToUpdate = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(() -> new RoomException(Messages.ROOMERROR));
+        Reservations reservationUpdate = ReservationConverter.dtoToCheckOutReservation(reservations);
+        roomToUpdate.setReservations(reservationUpdate);
+        hotelRepository.persist(hotel);
+        return hotelToDto(hotel);
+    }
+
+    @Override
+    public HotelGetDto updateRoomPrice(String hotelN, int roomNumber, int price) throws HotelException, RoomException {
+        Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelException(Messages.HOTELERROR));
+        Rooms roomToUpdate = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(() -> new RoomException(Messages.ROOMERROR));
+        roomToUpdate.setRoomPrice(price);
+        hotelRepository.persist(hotel);
+        return hotelToDto(hotel);
     }
 
     @Override

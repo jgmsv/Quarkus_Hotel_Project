@@ -11,11 +11,14 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class Rooms extends PanacheMongoEntity {
-
-    int roomNumber;
+    private int roomNumber;
+    private int numberOfBeds;
     private RoomType roomType;
+    private int roomPrice;
     private Reservations reservations;
+
 
     public Rooms() {
     }
+
 }
