@@ -13,4 +13,8 @@ public class HotelRepository implements PanacheMongoRepository<Hotel> {
     public Optional<Hotel> findByHotelN(String hotelN) {
         return find("hotelN", hotelN).firstResultOptional();
     }
+
+    public boolean isHotelNUnique(String hotelN) {
+        return find("hotelN", hotelN).count() == 0;
+    }
 }

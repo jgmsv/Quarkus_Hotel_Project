@@ -1,17 +1,15 @@
 package org.mindera.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
 
-public record CreateReservationDto (
+public record CreateReservationDto(
+        @NotNull
         boolean available,
         LocalDate checkInDate,
         LocalDate checkOutDate
-)
-{
+) {
 
 }

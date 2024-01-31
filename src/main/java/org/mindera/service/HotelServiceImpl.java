@@ -2,7 +2,6 @@ package org.mindera.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.PathParam;
 import org.mindera.converter.ReservationConverter;
 import org.mindera.dto.CreateHotelDto;
 import org.mindera.dto.CreateReservationCheckInDto;
@@ -12,11 +11,14 @@ import org.mindera.model.Hotel;
 import org.mindera.model.Reservations;
 import org.mindera.model.Rooms;
 import org.mindera.repository.HotelRepository;
-import org.mindera.util.exceptions.HotelDuplication;
-import org.mindera.util.exceptions.HotelException;
-import org.mindera.util.exceptions.RoomException;
-import org.mindera.util.messages.Messages;
+import org.mindera.util.exceptions.hotel.HotelDuplicationException;
+import org.mindera.util.exceptions.hotel.HotelExistsException;
+import org.mindera.util.exceptions.reservations.InvalidDateReservation;
+import org.mindera.util.exceptions.room.RoomExistsException;
+import org.mindera.util.exceptions.room.RoomPriceException;
+import org.mindera.util.messages.MessagesExceptions;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,9 +31,13 @@ public class HotelServiceImpl implements HotelService {
     HotelRepository hotelRepository;
 
     @Override
-    public Hotel addHotel(CreateHotelDto createHotelDto) throws HotelException, HotelDuplication {
+    public Hotel addHotel(CreateHotelDto createHotelDto) throws HotelDuplicationException {
         Hotel hotel = dtoToHotel(createHotelDto);
-        hotel.saveWithUniqueCheck(); //hotelRepository.persist(hotel);
+        if (hotelRepository.isHotelNUnique(hotel.getHotelN())) {
+            hotelRepository.persist(hotel);
+        } else {
+            throw new HotelDuplicationException(MessagesExceptions.DUPLICATEDHOTEL);
+        }
         return hotel;
     }
 
@@ -42,42 +48,57 @@ public class HotelServiceImpl implements HotelService {
     }
 
     @Override
-    public HotelGetDto updateRoomCheckInDate(String hotelN, int roomNumber, CreateReservationCheckInDto reservations) throws HotelException, RoomException {
-        Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelException(Messages.HOTELERROR));
-        Rooms roomToUpdate = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(() -> new RoomException(Messages.ROOMERROR));
+    public HotelGetDto updateRoomCheckInDate(String hotelN, int roomNumber, CreateReservationCheckInDto reservations) throws HotelExistsException, RoomExistsException, InvalidDateReservation {
+        Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelExistsException(MessagesExceptions.HOTELERROR));
+        Rooms roomToUpdate = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(() -> new RoomExistsException(MessagesExceptions.ROOMERROR));
+        if (reservations.checkInDate().isBefore(LocalDate.now())) {
+            throw new InvalidDateReservation(MessagesExceptions.INVALIDDATE);
+        }
         Reservations reservationUpdate = ReservationConverter.dtoToCheckInReservation(reservations);
         roomToUpdate.setReservations(reservationUpdate);
-        hotelRepository.persist(hotel);
+        hotelRepository.update(hotel);
         return hotelToDto(hotel);
     }
 
     @Override
-    public HotelGetDto updateRoomCheckOutDate(String hotelN, int roomNumber, CreateReservationCheckOutDto reservations) throws HotelException, RoomException {
-        Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelException(Messages.HOTELERROR));
-        Rooms roomToUpdate = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(() -> new RoomException(Messages.ROOMERROR));
+    public HotelGetDto updateRoomCheckOutDate(String hotelN, int roomNumber, CreateReservationCheckOutDto reservations) throws HotelExistsException, RoomExistsException, InvalidDateReservation {
+        Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelExistsException(MessagesExceptions.HOTELERROR));
+        Rooms roomToUpdate = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(() -> new RoomExistsException(MessagesExceptions.ROOMERROR));
+        if (reservations.checkOutDate().isAfter(LocalDate.now())) {
+            throw new InvalidDateReservation(MessagesExceptions.INVALIDDATE);
+        }
         Reservations reservationUpdate = ReservationConverter.dtoToCheckOutReservation(reservations);
         roomToUpdate.setReservations(reservationUpdate);
-        hotelRepository.persist(hotel);
+        reservationUpdate.setAvailable(true); //cache parar guardar
+        hotelRepository.update(hotel);
         return hotelToDto(hotel);
     }
 
     @Override
-    public HotelGetDto updateRoomPrice(String hotelN, int roomNumber, int price) throws HotelException, RoomException {
-        Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelException(Messages.HOTELERROR));
-        Rooms roomToUpdate = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(() -> new RoomException(Messages.ROOMERROR));
+    public HotelGetDto updateRoomPrice(String hotelN, int roomNumber, int price) throws HotelExistsException, RoomExistsException, RoomPriceException {
+        Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelExistsException(MessagesExceptions.HOTELERROR));
+        Rooms roomToUpdate = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(() -> new RoomExistsException(MessagesExceptions.ROOMERROR));
+        if (price <= roomToUpdate.getRoomPrice()) {
+            throw new RoomPriceException(MessagesExceptions.PRICEERROR);
+        }
         roomToUpdate.setRoomPrice(price);
-        hotelRepository.persist(hotel);
+        hotelRepository.update(hotel);
         return hotelToDto(hotel);
     }
 
     @Override
-    public HotelGetDto findHotelByHotelN(String hotelN) throws HotelException {
-        Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelException(Messages.HOTELERROR));
-        return hotelToDto(hotel);
+    public HotelGetDto findHotelByHotelN(String hotelN) throws HotelExistsException {
+        try {
+            Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelExistsException(MessagesExceptions.HOTELERROR));
+            return hotelToDto(hotel);
+        } catch (HotelExistsException e) {
+            throw e;
+        }
     }
 
 
-    public Optional<Hotel> findByHotelN(@PathParam("hotelN") String hotelN) {
+    public Optional<Hotel> findByHotelN(String hotelN) {
         return hotelRepository.findByHotelN(hotelN);
     }
+
 }
