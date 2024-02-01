@@ -1,4 +1,4 @@
-package org.mindera.model;
+package org.mindera.model.hotel;
 
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,7 @@ public class Rooms extends PanacheMongoEntity {
     private int numberOfBeds;
     private RoomType roomType;
     private int roomPrice;
-    private Reservations reservations;
+    private boolean available;
 
 
     public Rooms() {

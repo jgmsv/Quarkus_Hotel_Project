@@ -5,14 +5,11 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.mindera.dto.CreateHotelDto;
-import org.mindera.dto.CreateReservationCheckInDto;
-import org.mindera.dto.CreateReservationCheckOutDto;
-import org.mindera.dto.HotelGetDto;
-import org.mindera.service.HotelService;
+import org.mindera.dto.hotel.CreateHotelDto;
+import org.mindera.dto.hotel.HotelGetDto;
+import org.mindera.service.hotel.HotelService;
 import org.mindera.util.exceptions.hotel.HotelDuplicationException;
 import org.mindera.util.exceptions.hotel.HotelExistsException;
-import org.mindera.util.exceptions.reservations.InvalidDateReservation;
 import org.mindera.util.exceptions.room.RoomExistsException;
 import org.mindera.util.exceptions.room.RoomPriceException;
 
@@ -36,18 +33,6 @@ public class HotelController {
     public Response finAll() {
         List<HotelGetDto> findAllHottel = hotelService.findAllHotels();
         return Response.ok(findAllHottel).build();
-    }
-
-    @PUT
-    @Path("/updateCheckIn/{hotelN}/{roomNumber}")
-    public Response updateCheckIn(@PathParam("hotelN") String hotelN, @PathParam("roomNumber") int roomNumber, CreateReservationCheckInDto reservations) throws RoomExistsException, HotelExistsException, InvalidDateReservation {
-        return Response.ok(hotelService.updateRoomCheckInDate(hotelN, roomNumber, reservations)).build();
-    }
-
-    @PUT
-    @Path("/updateCheckOut/{hotelN}/{roomNumber}")
-    public Response updateCheckOut(@PathParam("hotelN") String hotelN, @PathParam("roomNumber") int roomNumber, CreateReservationCheckOutDto reservations) throws RoomExistsException, HotelExistsException, InvalidDateReservation {
-        return Response.ok(hotelService.updateRoomCheckOutDate(hotelN, roomNumber, reservations)).build();
     }
 
     @PUT

@@ -1,4 +1,4 @@
-package org.mindera.model;
+package org.mindera.model.hotel;
 
 public enum RoomType {
     SINGLEROOM,

@@ -1,8 +1,8 @@
-package org.mindera.converter;
+package org.mindera.converter.hotel;
 
-import org.mindera.dto.CreateHotelDto;
-import org.mindera.dto.HotelGetDto;
-import org.mindera.model.Hotel;
+import org.mindera.dto.hotel.CreateHotelDto;
+import org.mindera.dto.hotel.HotelGetDto;
+import org.mindera.model.hotel.Hotel;
 
 import java.util.List;
 

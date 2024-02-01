@@ -1,6 +1,6 @@
-package org.mindera.dto;
+package org.mindera.dto.hotel;
 
-import org.mindera.model.Rooms;
+import org.mindera.model.hotel.Rooms;
 
 import java.util.Set;
 

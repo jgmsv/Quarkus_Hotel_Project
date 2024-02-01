@@ -1,4 +1,4 @@
-package org.mindera.dto;
+package org.mindera.dto.hotel;
 
 import jakarta.validation.constraints.NotNull;
 

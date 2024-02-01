@@ -1,8 +1,8 @@
-package org.mindera.dto;
+package org.mindera.dto.hotel;
 
 
 import jakarta.validation.constraints.NotNull;
-import org.mindera.model.RoomType;
+import org.mindera.model.hotel.RoomType;
 
 
 public record CreateRoomDto(
@@ -14,7 +14,8 @@ public record CreateRoomDto(
         RoomType roomType,
         @NotNull
         int roomPrice,
-        CreateReservationDto reservations
+        @NotNull
+        boolean available
 ) {
 
 
