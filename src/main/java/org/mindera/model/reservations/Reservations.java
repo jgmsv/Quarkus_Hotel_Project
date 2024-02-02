@@ -11,11 +11,11 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@MongoEntity(collection = "Reservations", database = "my-mongodb")
+@MongoEntity(collection = "Reservations", database = "reservationdb")
 public class Reservations extends PanacheMongoEntity {
 
-    private LocalDate checkInDate;
-    private LocalDate checkOutDate;
+    private LocalDate arrival;
+    private LocalDate departure;
     private String firstName;
     private String lastName;
     private int phoneNumber;

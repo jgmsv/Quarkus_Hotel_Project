@@ -1,7 +1,6 @@
 package org.mindera.converter.hotel;
 
 import org.mindera.dto.hotel.CreateRoomDto;
-import org.mindera.dto.hotel.RoomAvailableUpdateDto;
 import org.mindera.model.hotel.Rooms;
 
 import java.util.Set;
@@ -18,11 +17,6 @@ public class RoomsConverter {
                 .build();
     }
 
-    public static Rooms dtoToAvailable(RoomAvailableUpdateDto roomAvailableUpdateDto) {
-        return Rooms.builder()
-                .available(roomAvailableUpdateDto.available())
-                .build();
-    }
 
     public static Set<Rooms> dtoToRoomsSet(Set<CreateRoomDto> createRoomDtos) {
         return createRoomDtos.stream()

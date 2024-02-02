@@ -11,7 +11,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@MongoEntity(collection = "Hotels", database = "my-mongodb")
+@MongoEntity(collection = "Hotels", database = "hoteldb")
 
 public class Hotel extends PanacheMongoEntity {
     private String hotelN;

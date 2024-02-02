@@ -7,7 +7,13 @@ import java.time.LocalDate;
 
 public record CreateReservationDto(
         @NotNull
-        LocalDate checkInDate,
+        LocalDate arrival,
+        @NotNull
+        LocalDate departure,
+        @NotNull
+        String hotelN,
+        @NotNull
+        int roomNumber,
         @NotNull
         String firstName,
         @NotNull
@@ -15,11 +21,8 @@ public record CreateReservationDto(
         @NotNull
         int phoneNumber,
         @NotNull
-        int vat,
-        @NotNull
-        String hotelN,
-        @NotNull
-        int roomNumber
+        int vat
+
 ) {
 
 }

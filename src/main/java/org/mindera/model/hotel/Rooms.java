@@ -15,10 +15,10 @@ public class Rooms extends PanacheMongoEntity {
     private int numberOfBeds;
     private RoomType roomType;
     private int roomPrice;
-    private boolean available;
 
 
     public Rooms() {
     }
+
 
 }

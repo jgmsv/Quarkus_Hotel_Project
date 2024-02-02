@@ -13,9 +13,8 @@ public record CreateRoomDto(
         @NotNull
         RoomType roomType,
         @NotNull
-        int roomPrice,
-        @NotNull
-        boolean available
+        int roomPrice
+
 ) {
 
 
