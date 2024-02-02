@@ -24,9 +24,9 @@ public class ReservationsController {
 
     @POST
     @Path("/{hotelN}/{roomNumber}")
-    public Response add(@PathParam("hotelN") String hotelN, @PathParam("roomNumber") int roomNumber, CreateReservationDto reservation, LocalDate arrival, LocalDate departure) throws RoomExistsException, HotelExistsException, InvalidDateReservationException, ReservationExistsException {
+    public Response add(@PathParam("hotelN") String hotelN, @PathParam("roomNumber") int roomNumber, CreateReservationDto reservation) throws RoomExistsException, HotelExistsException, InvalidDateReservationException, ReservationExistsException {
         return Response.ok(
-                reservationService.addReservationToRoom(hotelN, roomNumber, reservation, arrival, departure)).build();
+                reservationService.addReservationToRoom(hotelN, roomNumber, reservation)).build();
     }
 
     @PUT

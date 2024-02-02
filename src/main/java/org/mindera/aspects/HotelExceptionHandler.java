@@ -1,6 +1,5 @@
 package org.mindera.aspects;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -10,7 +9,6 @@ import org.mindera.util.exceptions.hotel.HotelExistsException;
 import org.mindera.util.messages.MessagesExceptions;
 
 @Provider
-@ApplicationScoped
 public class HotelExceptionHandler implements ExceptionMapper<HotelException> {
 
 

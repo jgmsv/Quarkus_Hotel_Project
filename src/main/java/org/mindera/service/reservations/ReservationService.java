@@ -3,7 +3,6 @@ package org.mindera.service.reservations;
 import org.bson.types.ObjectId;
 import org.mindera.dto.reservations.CreateReservationDto;
 import org.mindera.dto.reservations.ReservationsGetDto;
-import org.mindera.model.hotel.RoomType;
 import org.mindera.model.reservations.Reservations;
 import org.mindera.util.exceptions.hotel.HotelExistsException;
 import org.mindera.util.exceptions.reservations.InvalidDateReservationException;
@@ -14,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ReservationService {
-    Reservations addReservationToRoom(String hotelN, int roomNumber, CreateReservationDto reservation, LocalDate arrival, LocalDate departure) throws HotelExistsException, RoomExistsException, InvalidDateReservationException, ReservationExistsException;
+    Reservations addReservationToRoom(String hotelN, int roomNumber, CreateReservationDto reservation) throws HotelExistsException, RoomExistsException, InvalidDateReservationException, ReservationExistsException;
 
     ReservationsGetDto updateArrival(ObjectId reservationId, LocalDate arrival) throws InvalidDateReservationException;
 
@@ -24,5 +23,11 @@ public interface ReservationService {
 
     ReservationsGetDto findReservationById(ObjectId id);
 
-    public void checkRoomAvailability(String hotelN, ReservationsGetDto reservation, RoomType roomType, LocalDate arrival, LocalDate departure) throws InvalidDateReservationException, HotelExistsException, RoomExistsException, ReservationExistsException;
+    List<Reservations> checkReservations();
+
+    void checkHotelRoom(String hotelN, int roomNumber) throws RoomExistsException, HotelExistsException;
+
+    List<Reservations> checkRoomReservations(String hotelN, int roomNumber) throws HotelExistsException, RoomExistsException;
+
+    void hasOverlappingReservation(String hotelN, int roomNumber, LocalDate arrival, LocalDate departure) throws RoomExistsException, HotelExistsException, ReservationExistsException;
 }

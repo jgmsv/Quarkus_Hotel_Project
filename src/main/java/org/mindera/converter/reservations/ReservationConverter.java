@@ -12,6 +12,8 @@ public class ReservationConverter {
 
     public static Reservations dtoToReservations(CreateReservationDto createReservationDto) {
         return Reservations.builder()
+                .arrival(createReservationDto.arrival())
+                .departure(createReservationDto.departure())
                 .firstName(createReservationDto.firstName())
                 .lastName(createReservationDto.lastName())
                 .phoneNumber(createReservationDto.phoneNumber())
