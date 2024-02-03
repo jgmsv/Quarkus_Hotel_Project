@@ -1,6 +1,7 @@
 package org.mindera.service.reservations;
 
 import org.bson.types.ObjectId;
+import org.mindera.dto.reservations.CreateReservationArrivaDeparturelDto;
 import org.mindera.dto.reservations.CreateReservationDto;
 import org.mindera.dto.reservations.ReservationsGetDto;
 import org.mindera.model.reservations.Reservations;
@@ -15,9 +16,7 @@ import java.util.List;
 public interface ReservationService {
     Reservations addReservationToRoom(String hotelN, int roomNumber, CreateReservationDto reservation) throws HotelExistsException, RoomExistsException, InvalidDateReservationException, ReservationExistsException;
 
-    ReservationsGetDto updateArrival(ObjectId reservationId, LocalDate arrival) throws InvalidDateReservationException;
-
-    ReservationsGetDto updateDeparture(ObjectId reservationId, LocalDate departure) throws InvalidDateReservationException;
+    ReservationsGetDto updateReservation(ObjectId reservationId, CreateReservationArrivaDeparturelDto updateReservation) throws InvalidDateReservationException, RoomExistsException, HotelExistsException, ReservationExistsException;
 
     List<ReservationsGetDto> findAllReservations();
 

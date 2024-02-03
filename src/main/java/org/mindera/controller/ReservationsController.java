@@ -5,14 +5,13 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.bson.types.ObjectId;
+import org.mindera.dto.reservations.CreateReservationArrivaDeparturelDto;
 import org.mindera.dto.reservations.CreateReservationDto;
 import org.mindera.service.reservations.ReservationService;
 import org.mindera.util.exceptions.hotel.HotelExistsException;
 import org.mindera.util.exceptions.reservations.InvalidDateReservationException;
 import org.mindera.util.exceptions.reservations.ReservationExistsException;
 import org.mindera.util.exceptions.room.RoomExistsException;
-
-import java.time.LocalDate;
 
 @Path("api/v1/reservations")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -30,17 +29,10 @@ public class ReservationsController {
     }
 
     @PUT
-    @Path("/arrival/{reservationId}")
-    public Response updateArrival(@PathParam("reservationId") ObjectId reservationId, LocalDate arrival) throws InvalidDateReservationException {
+    @Path("/update/{reservationId}")
+    public Response updateReservation(@PathParam("reservationId") ObjectId reservationId, CreateReservationArrivaDeparturelDto updateReservation) throws InvalidDateReservationException, ReservationExistsException, RoomExistsException, HotelExistsException {
         return Response.ok(
-                reservationService.updateArrival(reservationId, arrival)).build();
-    }
-
-    @PUT
-    @Path("/departure/{reservationId}")
-    public Response updateDeparture(@PathParam("reservationId") ObjectId reservationId, LocalDate departure) throws InvalidDateReservationException {
-        return Response.ok(
-                reservationService.updateDeparture(reservationId, departure)).build();
+                reservationService.updateReservation(reservationId, updateReservation)).build();
     }
 
     @GET

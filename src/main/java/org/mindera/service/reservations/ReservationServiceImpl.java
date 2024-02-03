@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.bson.types.ObjectId;
 import org.mindera.converter.reservations.ReservationConverter;
+import org.mindera.dto.reservations.CreateReservationArrivaDeparturelDto;
 import org.mindera.dto.reservations.CreateReservationDto;
 import org.mindera.dto.reservations.ReservationsGetDto;
 import org.mindera.model.hotel.Hotel;
@@ -18,6 +19,7 @@ import org.mindera.util.exceptions.room.RoomExistsException;
 import org.mindera.util.messages.MessagesExceptions;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mindera.converter.reservations.ReservationConverter.reservationsToDto;
@@ -50,35 +52,25 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public ReservationsGetDto updateArrival(ObjectId reservationId, LocalDate arrival) throws InvalidDateReservationException {
-        Reservations reservations = reservationRepository.findById(reservationId);
-        boolean hasOverlappingReservation = reservationRepository.list("roomNumber = ?1", reservations.getRoomNumber()).stream()
-                .anyMatch(existingReservation ->
-                        (arrival.isBefore(existingReservation.getDeparture()) && reservations.getDeparture().isAfter(existingReservation.getArrival())) ||
-                                (arrival.isEqual(existingReservation.getDeparture()) || reservations.getDeparture().isEqual(existingReservation.getArrival()))
-                );
-        if (hasOverlappingReservation) {
-            throw new InvalidDateReservationException(MessagesExceptions.INVALIDDATE);
-        }
-        reservations.setArrival(arrival);
-        reservationRepository.update(reservations);
-        return reservationsToDto(reservations);
-    }
+    public ReservationsGetDto updateReservation(ObjectId reservationId, CreateReservationArrivaDeparturelDto updateReservation) throws InvalidDateReservationException, RoomExistsException, HotelExistsException, ReservationExistsException {
+        Reservations reservation = reservationRepository.findById(reservationId);
+        List<Reservations> reservations = checkRoomReservations(reservation.getHotelN(), reservation.getRoomNumber());
+        Reservations reservationUpdate = ReservationConverter.dtoToArrivalDeparture(updateReservation);
+        for (Reservations existingReservation : reservations) {
+            LocalDate existingArrival = existingReservation.getArrival();
+            LocalDate existingDeparture = existingReservation.getDeparture();
+            boolean isOverlap =
+                    !(updateReservation.departure().isBefore(existingArrival) ||
+                            updateReservation.arrival().isAfter(existingDeparture));
 
-    @Override
-    public ReservationsGetDto updateDeparture(ObjectId reservationId, LocalDate departure) throws InvalidDateReservationException {
-        Reservations reservations = reservationRepository.findById(reservationId);
-        boolean hasOverlappingReservation = reservationRepository.list("roomNumber = ?1", reservations.getRoomNumber()).stream()
-                .anyMatch(existingReservation ->
-                        (departure.isAfter(existingReservation.getArrival()) && reservations.getArrival().isBefore(existingReservation.getDeparture())) ||
-                                (departure.isEqual(existingReservation.getArrival()) || reservations.getArrival().isEqual(existingReservation.getDeparture()))
-                );
-        if (hasOverlappingReservation) {
-            throw new InvalidDateReservationException(MessagesExceptions.INVALIDDATE);
+            if (isOverlap) {
+                throw new ReservationExistsException(MessagesExceptions.RESERVATIONEXISTS);
+            }
         }
-        reservations.setDeparture(departure);
-        reservationRepository.update(reservations);
-        return reservationsToDto(reservations);
+        reservation.setArrival(updateReservation.arrival());
+        reservation.setDeparture(updateReservation.departure());
+        reservationRepository.update(reservation);
+        return reservationsToDto(reservation);
     }
 
     @Override
@@ -92,7 +84,7 @@ public class ReservationServiceImpl implements ReservationService {
         Reservations reservations = reservationRepository.findById(id);
         return reservationsToDto(reservations);
     }
-    
+
 
     public List<Reservations> checkReservations() {
         List<Reservations> reservations = reservationRepository.listAll();
@@ -112,10 +104,7 @@ public class ReservationServiceImpl implements ReservationService {
         List<Reservations> reservations = checkReservations().stream()
                 .filter(reservation -> reservation.getHotelN().equals(hotelN) && reservation.getRoomNumber() == roomNumber)
                 .toList();
-        if (reservations.isEmpty()) {
-            return null;
-        }
-        return reservations;
+        return reservations == null ? Collections.emptyList() : reservations;
     }
 
     public void hasOverlappingReservation(String hotelN, int roomNumber, LocalDate arrival, LocalDate departure) throws RoomExistsException, HotelExistsException, ReservationExistsException {

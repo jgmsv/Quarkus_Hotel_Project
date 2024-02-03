@@ -4,8 +4,10 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
-public record CreateReservationArrivalDto(
+public record CreateReservationArrivaDeparturelDto(
         @NotNull
-        LocalDate arrival
+        LocalDate arrival,
+        @NotNull
+        LocalDate departure
 ) {
 }

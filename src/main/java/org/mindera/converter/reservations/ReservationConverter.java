@@ -1,7 +1,6 @@
 package org.mindera.converter.reservations;
 
-import org.mindera.dto.reservations.CreateReservationArrivalDto;
-import org.mindera.dto.reservations.CreateReservationDepartureDto;
+import org.mindera.dto.reservations.CreateReservationArrivaDeparturelDto;
 import org.mindera.dto.reservations.CreateReservationDto;
 import org.mindera.dto.reservations.ReservationsGetDto;
 import org.mindera.model.reservations.Reservations;
@@ -21,15 +20,10 @@ public class ReservationConverter {
                 .build();
     }
 
-    public static Reservations dtoToArrival(CreateReservationArrivalDto createReservationDto) {
+    public static Reservations dtoToArrivalDeparture(CreateReservationArrivaDeparturelDto createReservationDto) {
         return Reservations.builder()
+                .arrival(createReservationDto.arrival())
                 .departure(createReservationDto.arrival())
-                .build();
-    }
-
-    public static Reservations dtoToDeparture(CreateReservationDepartureDto createReservationDto) {
-        return Reservations.builder()
-                .departure(createReservationDto.departure())
                 .build();
     }
 
