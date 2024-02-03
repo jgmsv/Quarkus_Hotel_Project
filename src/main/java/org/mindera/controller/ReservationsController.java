@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.Response;
 import org.bson.types.ObjectId;
 import org.mindera.dto.reservations.CreateReservationArrivaDeparturelDto;
 import org.mindera.dto.reservations.CreateReservationDto;
+import org.mindera.model.hotel.RoomType;
 import org.mindera.service.reservations.ReservationService;
 import org.mindera.util.exceptions.hotel.HotelExistsException;
 import org.mindera.util.exceptions.reservations.InvalidDateReservationException;
@@ -23,9 +24,9 @@ public class ReservationsController {
 
     @POST
     @Path("/{hotelN}/{roomNumber}")
-    public Response add(@PathParam("hotelN") String hotelN, @PathParam("roomNumber") int roomNumber, CreateReservationDto reservation) throws RoomExistsException, HotelExistsException, InvalidDateReservationException, ReservationExistsException {
+    public Response add(@PathParam("hotelN") String hotelN, @PathParam("roomNumber") RoomType roomType, CreateReservationDto reservation) throws RoomExistsException, HotelExistsException, InvalidDateReservationException, ReservationExistsException {
         return Response.ok(
-                reservationService.addReservationToRoom(hotelN, roomNumber, reservation)).build();
+                reservationService.addReservationToRoom(hotelN, roomType, reservation)).build();
     }
 
     @PUT

@@ -1,6 +1,7 @@
 package org.mindera.dto.reservations;
 
 import jakarta.validation.constraints.NotNull;
+import org.mindera.model.hotel.RoomType;
 
 import java.time.LocalDate;
 
@@ -14,6 +15,8 @@ public record CreateReservationDto(
         String hotelN,
         @NotNull
         int roomNumber,
+        @NotNull
+        RoomType roomType,
         @NotNull
         String firstName,
         @NotNull

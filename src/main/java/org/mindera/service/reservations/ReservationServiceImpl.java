@@ -8,6 +8,7 @@ import org.mindera.dto.reservations.CreateReservationArrivaDeparturelDto;
 import org.mindera.dto.reservations.CreateReservationDto;
 import org.mindera.dto.reservations.ReservationsGetDto;
 import org.mindera.model.hotel.Hotel;
+import org.mindera.model.hotel.RoomType;
 import org.mindera.model.hotel.Rooms;
 import org.mindera.model.reservations.Reservations;
 import org.mindera.repository.HotelRepository;
@@ -34,15 +35,17 @@ public class ReservationServiceImpl implements ReservationService {
     ReservationRepository reservationRepository;
 
     @Override
-    public Reservations addReservationToRoom(String hotelN, int roomNumber, CreateReservationDto reservation) throws HotelExistsException, RoomExistsException, ReservationExistsException, InvalidDateReservationException {
+    public Reservations addReservationToRoom(String hotelN, RoomType roomType, CreateReservationDto reservation) throws HotelExistsException, RoomExistsException, ReservationExistsException, InvalidDateReservationException {
         Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelExistsException(MessagesExceptions.HOTELERROR));
-        Rooms room = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(() -> new RoomExistsException(MessagesExceptions.ROOMERROR));
+        Rooms room = hotel.getRooms().stream().filter(rooms -> rooms.getRoomType().equals(roomType)).findFirst().orElseThrow(() -> new RoomExistsException(MessagesExceptions.ROOMERROR));
+        //Rooms room = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(() -> new RoomExistsException(MessagesExceptions.ROOMERROR));
         Reservations reservationUpdate = ReservationConverter.dtoToReservations(reservation);
-        hasOverlappingReservation(hotelN, roomNumber, reservation.arrival(), reservation.departure());
+        hasOverlappingReservation(hotelN, room.getRoomNumber(), reservation.arrival(), reservation.departure());
         reservationUpdate.setArrival(reservation.arrival());
         reservationUpdate.setDeparture(reservation.departure());
         reservationUpdate.setHotelN(hotelN);
-        reservationUpdate.setRoomNumber(roomNumber);
+        reservationUpdate.setRoomType(roomType);
+        reservationUpdate.setRoomNumber(room.getRoomNumber());
         if (reservationUpdate.getArrival().isBefore(LocalDate.now())) {
             throw new InvalidDateReservationException(MessagesExceptions.INVALIDDATE);
         }
@@ -127,6 +130,24 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
 }
+
+/*    @Override
+    public Reservations addReservationToRoom(String hotelN, int roomNumber, CreateReservationDto reservation) throws HotelExistsException, RoomExistsException, ReservationExistsException, InvalidDateReservationException {
+        Hotel hotel = hotelRepository.findByHotelN(hotelN).orElseThrow(() -> new HotelExistsException(MessagesExceptions.HOTELERROR));
+        Rooms room = hotel.getRooms().stream().filter(rooms -> rooms.getRoomNumber() == roomNumber).findFirst().orElseThrow(() -> new RoomExistsException(MessagesExceptions.ROOMERROR));
+        Reservations reservationUpdate = ReservationConverter.dtoToReservations(reservation);
+        hasOverlappingReservation(hotelN, roomNumber, reservation.arrival(), reservation.departure());
+        reservationUpdate.setArrival(reservation.arrival());
+        reservationUpdate.setDeparture(reservation.departure());
+        reservationUpdate.setHotelN(hotelN);
+        reservationUpdate.setRoomNumber(roomNumber);
+        if (reservationUpdate.getArrival().isBefore(LocalDate.now())) {
+            throw new InvalidDateReservationException(MessagesExceptions.INVALIDDATE);
+        }
+        reservationRepository.persist(reservationUpdate);
+        return reservationUpdate;
+
+    }*/
 
 
 

@@ -37,6 +37,7 @@ public class ReservationConverter {
                 reservations.getVat(),
                 reservations.getHotelN(),
                 reservations.getRoomNumber(),
+                reservations.getRoomType(),
                 reservations.id
         );
     }

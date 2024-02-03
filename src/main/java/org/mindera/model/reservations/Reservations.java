@@ -3,6 +3,7 @@ package org.mindera.model.reservations;
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import lombok.*;
+import org.mindera.model.hotel.RoomType;
 
 import java.time.LocalDate;
 
@@ -22,6 +23,7 @@ public class Reservations extends PanacheMongoEntity {
     private int vat;
     private String hotelN;
     private int roomNumber;
+    private RoomType roomType;
 
 }
 
