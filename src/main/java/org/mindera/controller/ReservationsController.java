@@ -6,8 +6,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.bson.types.ObjectId;
 import org.mindera.dto.reservations.CreateReservationArrivaDeparturelDto;
-import org.mindera.dto.reservations.CreateReservationDto;
-import org.mindera.model.hotel.RoomType;
+import org.mindera.dto.reservations.CreateReservationMultiDto;
 import org.mindera.service.reservations.ReservationService;
 import org.mindera.util.exceptions.hotel.HotelExistsException;
 import org.mindera.util.exceptions.reservations.InvalidDateReservationException;
@@ -22,11 +21,18 @@ public class ReservationsController {
     @Inject
     ReservationService reservationService;
 
-    @POST
+    /*@POST
     @Path("/{hotelN}/{roomNumber}")
     public Response add(@PathParam("hotelN") String hotelN, @PathParam("roomNumber") RoomType roomType, CreateReservationDto reservation) throws RoomExistsException, HotelExistsException, InvalidDateReservationException, ReservationExistsException {
-        return Response.ok(
-                reservationService.addReservationToRoom(hotelN, roomType, reservation)).build();
+        return Response.ok(reservationService.addReservationToRoom(hotelN, roomType, reservation)).status(Response.Status.CREATED).build();
+
+    }*/
+
+    @POST
+    @Path("/{hotelN}/")
+    public Response addmulti(@PathParam("hotelN") String hotelN, CreateReservationMultiDto reservation) throws RoomExistsException, HotelExistsException, InvalidDateReservationException, ReservationExistsException {
+        return Response.status(Response.Status.CREATED).entity(
+                reservationService.addReservation(hotelN, reservation)).build();
     }
 
     @PUT
@@ -37,9 +43,9 @@ public class ReservationsController {
     }
 
     @GET
-    public Response findAll() {
+    public Response findAll(@QueryParam("page") int page) {
         return Response.ok(
-                reservationService.findAllReservations()).build();
+                reservationService.findAllReservations(page)).build();
     }
 
     @GET
