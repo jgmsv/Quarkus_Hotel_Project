@@ -4,14 +4,16 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.bson.types.ObjectId;
 import org.mindera.converter.reservations.ReservationConverter;
-import org.mindera.dto.reservations.*;
+import org.mindera.dto.reservations.CreateReservationArrivaDeparturelDto;
+import org.mindera.dto.reservations.CreateReservationMultiDto;
+import org.mindera.dto.reservations.CreateRoomsReservationDto;
+import org.mindera.dto.reservations.ReservationsMultiGetDto;
 import org.mindera.model.hotel.Hotel;
+import org.mindera.model.hotel.RoomType;
 import org.mindera.model.hotel.Rooms;
-import org.mindera.model.reservations.Reservations;
 import org.mindera.model.reservations.ReservationsMulti;
 import org.mindera.model.reservations.RoomReservations;
 import org.mindera.repository.HotelRepository;
-import org.mindera.repository.ReservationRepository;
 import org.mindera.repository.ReservationsMultiRepository;
 import org.mindera.util.exceptions.hotel.HotelExistsException;
 import org.mindera.util.exceptions.reservations.InvalidDateReservationException;
@@ -20,12 +22,10 @@ import org.mindera.util.exceptions.room.RoomExistsException;
 import org.mindera.util.messages.MessagesExceptions;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
+import static org.mindera.converter.reservations.ReservationConverter.reservationMultiToDto;
 import static org.mindera.converter.reservations.ReservationConverter.reservationsMultiToDtoList;
-import static org.mindera.converter.reservations.ReservationConverter.reservationsToDto;
 
 @ApplicationScoped
 public class ReservationServiceImpl implements ReservationService {
@@ -33,42 +33,48 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Inject
     HotelRepository hotelRepository;
-    @Inject
-    ReservationRepository reservationRepository;
+
     @Inject
     ReservationsMultiRepository reservationsMultiRepository;
 
     @Override
-    public ReservationsGetDto updateReservation(ObjectId reservationId, CreateReservationArrivaDeparturelDto updateReservation) throws InvalidDateReservationException, RoomExistsException, HotelExistsException, ReservationExistsException {
-        Reservations reservation = reservationRepository.findById(reservationId);
-        List<Reservations> reservations = checkRoomReservations(reservation.getHotelN(), reservation.getRoomNumber());
-        Reservations reservationUpdate = ReservationConverter.dtoToArrivalDeparture(updateReservation);
-        for (Reservations existingReservation : reservations) {
-            LocalDate existingArrival = existingReservation.getArrival();
-            LocalDate existingDeparture = existingReservation.getDeparture();
-            boolean isOverlap =
-                    !(updateReservation.departure().isBefore(existingArrival) ||
-                            updateReservation.arrival().isAfter(existingDeparture));
+    public List<ReservationsMultiGetDto> findAllReservations(int page) {
+        List<ReservationsMulti> reservationsMultis = reservationsMultiRepository.findAll().page(page, PAGE_SIZE).list();
+        return reservationsMultiToDtoList(reservationsMultis);
+    }
 
-            if (isOverlap) {
-                throw new ReservationExistsException(MessagesExceptions.RESERVATIONEXISTS);
-            }
+    @Override
+    public ReservationsMultiGetDto updateReservation(ObjectId reservationId, CreateReservationArrivaDeparturelDto updateReservation) throws InvalidDateReservationException, RoomExistsException, HotelExistsException, ReservationExistsException {
+        ReservationsMulti reservationMulti = reservationsMultiRepository.findById(reservationId);
+
+        ReservationsMulti reservationUpdate = ReservationConverter.dtoToArrivalDeparture(updateReservation);
+
+        if (reservationUpdate.getArrival().isAfter(reservationUpdate.getDeparture())) {
+            throw new InvalidDateReservationException("Arrival date cannot be after departure date");
         }
-        reservation.setArrival(updateReservation.arrival());
-        reservation.setDeparture(updateReservation.departure());
-        reservationRepository.update(reservation);
-        return reservationsToDto(reservation);
+
+        for (RoomReservations roomReservation : reservationMulti.getRoomReservations()) {
+            hasOverlappingReservation(reservationMulti.getHotelN(), roomReservation.getRoomNumber(), reservationUpdate.getArrival(), reservationUpdate.getDeparture());
+        }
+
+
+        reservationMulti.setArrival(updateReservation.arrival());
+        reservationMulti.setDeparture(updateReservation.departure());
+
+        reservationsMultiRepository.update(reservationMulti);
+
+        return reservationMultiToDto(reservationMulti);
     }
 
     @Override
-    public ReservationsGetDto findReservationById(ObjectId id) {
-        Reservations reservations = reservationRepository.findById(id);
-        return reservationsToDto(reservations);
+    public ReservationsMultiGetDto findReservationById(ObjectId id) {
+        ReservationsMulti reservations = reservationsMultiRepository.findById(id);
+        return reservationMultiToDto(reservations);
     }
 
     @Override
-    public List<Reservations> checkReservations() {
-        List<Reservations> reservations = reservationRepository.listAll();
+    public List<ReservationsMulti> checkReservations() {
+        List<ReservationsMulti> reservations = reservationsMultiRepository.listAll();
         if (reservations.isEmpty()) {
             return reservations.stream().toList();
         }
@@ -82,82 +88,71 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<Reservations> checkRoomReservations(String hotelN, int roomNumber) throws HotelExistsException, RoomExistsException {
+    public List<ReservationsMulti> checkRoomReservations(String hotelN, int roomNumber) throws HotelExistsException, RoomExistsException {
         checkHotelRoom(hotelN, roomNumber);
-        List<Reservations> reservations = checkReservations().stream()
-                .filter(reservation -> reservation.getHotelN().equals(hotelN) && reservation.getRoomNumber() == roomNumber)
-                .toList();
+        List<ReservationsMulti> reservations = checkReservations().stream()
+                .filter(reservation -> reservation.getHotelN().equals(hotelN) && reservation.getRoomReservations().stream().anyMatch(roomReservation -> roomReservation.getRoomNumber() == roomNumber)
+                ).toList();
         return reservations == null ? Collections.emptyList() : reservations;
     }
 
     @Override
     public void hasOverlappingReservation(String hotelN, int roomNumber, LocalDate arrival, LocalDate departure) throws RoomExistsException, HotelExistsException, ReservationExistsException {
-        List<Reservations> reservations = checkRoomReservations(hotelN, roomNumber);
-        for (Reservations existingReservation : reservations) {
-            LocalDate existingArrival = existingReservation.getArrival();
-            LocalDate existingDeparture = existingReservation.getDeparture();
-
-            boolean isOverlap =
-                    arrival.isBefore(existingDeparture) ||
-                            departure.isAfter(existingArrival) ||
-                            arrival.isEqual(existingDeparture) ||
-                            departure.isEqual(existingArrival);
-
-            if (isOverlap) {
-                throw new ReservationExistsException(MessagesExceptions.RESERVATIONEXISTS);
-            }
-        }
-    }
-
-
-    @Override
-    public List<ReservationsMultiGetDto> findAllReservations(int page) {
-        List<ReservationsMulti> reservationsMultis = reservationsMultiRepository.listAll().page(page, PAGE_SIZE).list();
-        return reservationsMultiToDtoList(reservationsMultis);
-    }
-
-    public void overlapingChecker(List<ReservationsMulti> reservations, LocalDate arrival, LocalDate departure) throws ReservationExistsException {
+        List<ReservationsMulti> reservations = checkRoomReservations(hotelN, roomNumber);
         for (ReservationsMulti existingReservation : reservations) {
             LocalDate existingArrival = existingReservation.getArrival();
             LocalDate existingDeparture = existingReservation.getDeparture();
 
+
             boolean isOverlap =
-                    arrival.isBefore(existingDeparture) ||
-                            departure.isAfter(existingArrival) ||
-                            arrival.isEqual(existingDeparture) ||
-                            departure.isEqual(existingArrival);
+                    arrival.isBefore(existingDeparture) &&
+                            departure.isAfter(existingArrival);
+
             if (isOverlap) {
                 throw new ReservationExistsException(MessagesExceptions.RESERVATIONEXISTS);
             }
         }
     }
 
-    public ReservationsMulti addReservation(String hotelN, CreateReservationMultiDto reservation)
-            throws HotelExistsException, RoomExistsException, ReservationExistsException, InvalidDateReservationException {
+    @Override
+    public ReservationsMulti addReservation(CreateReservationMultiDto reservation)
+            throws HotelExistsException, RoomExistsException, ReservationExistsException {
 
-        Hotel hotel = hotelRepository.findByHotelN(hotelN)
+        Hotel hotel = hotelRepository.findByHotelN(reservation.hotelN())
                 .orElseThrow(() -> new HotelExistsException(MessagesExceptions.HOTELERROR));
 
+        Set<Rooms> roomsSet = hotel.getRooms();
+        List<Rooms> rooms = new ArrayList<>(roomsSet);
         List<CreateRoomsReservationDto> roomReservations = reservation.roomReservations();
-
         List<RoomReservations> reservations = new ArrayList<>();
 
-        for (CreateRoomsReservationDto roomDto : roomReservations) {
-            Rooms room = hotel.getRooms().stream()
-                    .filter(r -> r.getRoomType().equals(roomDto.roomType()))
-                    .findFirst()
-                    .orElseThrow(() -> new RoomExistsException(MessagesExceptions.ROOMERROR));
-
-            hasOverlappingReservation(hotelN, room.getRoomNumber(), reservation.arrival(), reservation.departure());
-
-            RoomReservations roomReservation = new RoomReservations();
-            roomReservation.setRoomNumber(room.getRoomNumber());
-            roomReservation.setRoomType(roomDto.roomType());
-            reservations.add(roomReservation);
+        Map<RoomType, List<Rooms>> availableRoomsMap = new HashMap<>();
+        for (Rooms room : rooms) {
+            availableRoomsMap.computeIfAbsent(room.getRoomType(), k -> new ArrayList<>()).add(room);
         }
 
+
+        for (CreateRoomsReservationDto dtoRooms : roomReservations) {
+            RoomType requestedRoomType = dtoRooms.roomType();
+            List<Rooms> availableRooms = availableRoomsMap.get(requestedRoomType);
+            if (availableRooms != null && !availableRooms.isEmpty()) {
+
+                Rooms room = availableRooms.remove(0);
+                hasOverlappingReservation(reservation.hotelN(), room.getRoomNumber(), reservation.arrival(), reservation.departure());
+                reservations.add(new RoomReservations(room.getRoomNumber(), requestedRoomType));
+            } else {
+                throw new RoomExistsException(MessagesExceptions.ROOMERROR);
+            }
+        }
+
+        for (RoomReservations roomReservation : reservations) {
+            hasOverlappingReservation(reservation.hotelN(), roomReservation.getRoomNumber(), reservation.arrival(), reservation.departure());
+        }
+
+
         ReservationsMulti reservationUpdate = ReservationConverter.dtoToReservations(reservation);
-        reservationUpdate.setHotelN(hotelN);
+
+        reservationUpdate.setHotelN(reservation.hotelN());
         reservationUpdate.setArrival(reservation.arrival());
         reservationUpdate.setDeparture(reservation.departure());
         reservationUpdate.setRoomReservations(reservations);
@@ -166,8 +161,6 @@ public class ReservationServiceImpl implements ReservationService {
 
         return reservationUpdate;
     }
-
-
 }
 
 

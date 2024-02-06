@@ -30,14 +30,14 @@ public class ReservationsController {
 
     @POST
     @Path("/{hotelN}/")
-    public Response addmulti(@PathParam("hotelN") String hotelN, CreateReservationMultiDto reservation) throws RoomExistsException, HotelExistsException, InvalidDateReservationException, ReservationExistsException {
+    public Response add(CreateReservationMultiDto reservation) throws HotelExistsException, RoomExistsException, ReservationExistsException {
         return Response.status(Response.Status.CREATED).entity(
-                reservationService.addReservation(hotelN, reservation)).build();
+                reservationService.addReservation(reservation)).build();
     }
 
     @PUT
     @Path("/update/{reservationId}")
-    public Response updateReservation(@PathParam("reservationId") ObjectId reservationId, CreateReservationArrivaDeparturelDto updateReservation) throws InvalidDateReservationException, ReservationExistsException, RoomExistsException, HotelExistsException {
+    public Response updateReservation(@PathParam("reservationId") ObjectId reservationId, CreateReservationArrivaDeparturelDto updateReservation) throws InvalidDateReservationException, RoomExistsException, HotelExistsException, ReservationExistsException {
         return Response.ok(
                 reservationService.updateReservation(reservationId, updateReservation)).build();
     }
