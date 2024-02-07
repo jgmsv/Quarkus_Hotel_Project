@@ -2,6 +2,7 @@ package org.mindera.controller;
 
 
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -24,7 +25,7 @@ public class HotelController {
     HotelService hotelService;
 
     @POST
-    public Response add(CreateHotelDto hotel) throws HotelExistsException, HotelDuplicationException {
+    public Response add(@Valid CreateHotelDto hotel) throws HotelExistsException, HotelDuplicationException {
         return Response.ok(
                 hotelService.addHotel(hotel)).build();
     }

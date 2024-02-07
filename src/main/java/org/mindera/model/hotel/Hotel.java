@@ -16,7 +16,7 @@ import java.util.Set;
 public class Hotel extends PanacheMongoEntity {
     private String hotelN;
     private String location;
-    private int phoneNumber;
+    private String phoneNumber;
     private Set<Rooms> rooms;
     //private List<Tags> tags;
 

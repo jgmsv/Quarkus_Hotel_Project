@@ -18,9 +18,8 @@ public class ReservationsMulti extends PanacheMongoEntity {
     private LocalDate arrival;
     private LocalDate departure;
     private String hotelN;
-    private String firstName;
-    private String lastName;
-    private int phoneNumber;
-    private int vat;
+    private String fullName;
+    private String phoneNumber;
+    private String vat;
     private List<RoomReservations> roomReservations;
 }

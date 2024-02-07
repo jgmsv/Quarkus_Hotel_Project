@@ -10,10 +10,9 @@ public record ReservationsMultiGetDto(
         LocalDate arrival,
         LocalDate departure,
         String hotelN,
-        String firstName,
-        String lastName,
-        int phoneNumber,
-        int vat,
+        String fullName,
+        String phoneNumber,
+        String vat,
         List<RoomReservations> roomReservations,
         ObjectId id
 ) {

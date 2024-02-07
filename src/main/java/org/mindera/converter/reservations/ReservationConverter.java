@@ -22,8 +22,7 @@ public class ReservationConverter {
         return ReservationsMulti.builder()
                 .arrival(createReservationMultiDto.arrival())
                 .departure(createReservationMultiDto.departure())
-                .firstName(createReservationMultiDto.firstName())
-                .lastName(createReservationMultiDto.lastName())
+                .fullName(createReservationMultiDto.fullName())
                 .phoneNumber(createReservationMultiDto.phoneNumber())
                 .vat(createReservationMultiDto.vat())
                 .hotelN(createReservationMultiDto.hotelN())
@@ -36,8 +35,7 @@ public class ReservationConverter {
                 reservationsMulti.getArrival(),
                 reservationsMulti.getDeparture(),
                 reservationsMulti.getHotelN(),
-                reservationsMulti.getFirstName(),
-                reservationsMulti.getLastName(),
+                reservationsMulti.getFullName(),
                 reservationsMulti.getPhoneNumber(),
                 reservationsMulti.getVat(),
                 reservationsMulti.getRoomReservations(),

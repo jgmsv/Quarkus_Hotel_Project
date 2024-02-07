@@ -7,7 +7,7 @@ import java.util.Set;
 public record HotelGetDto(
         String hotelN,
         String location,
-        int phoneNumber,
+        String phoneNumber,
         Set<Rooms> rooms
 ) {
 
