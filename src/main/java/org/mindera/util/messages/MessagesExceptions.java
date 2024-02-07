@@ -10,4 +10,6 @@ public class MessagesExceptions {
     public static final String INVALIDDATE = "Invalid date";
     public static final String INVALIDRESERVATIONID = "Invalid reservation id";
     public static final String RESERVATIONEXISTS = "Reservation already exists";
+    public static final String HOTELADDRESSNOTFOUND = "Hotel with address not found";
+    public static final String HOTELFACILITIESNOTFOUND = "Hotel facilities not found";
 }

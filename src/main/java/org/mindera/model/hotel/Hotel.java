@@ -18,7 +18,7 @@ public class Hotel extends PanacheMongoEntity {
     private String location;
     private String phoneNumber;
     private Set<Rooms> rooms;
-    //private List<Tags> tags;
+    private Set<Facilities> facilities;
 
 
 }

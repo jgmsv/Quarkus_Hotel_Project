@@ -14,6 +14,7 @@ public class HotelConverter {
                 .location(createHotelDto.location())
                 .phoneNumber(createHotelDto.phoneNumber())
                 .rooms(RoomsConverter.dtoToRoomsSet(createHotelDto.rooms()))
+                .facilities(createHotelDto.facilities())
                 .build();
     }
 
@@ -22,7 +23,8 @@ public class HotelConverter {
                 hotel.getHotelN(),
                 hotel.getLocation(),
                 hotel.getPhoneNumber(),
-                hotel.getRooms()
+                hotel.getRooms(),
+                hotel.getFacilities()
 
         );
     }

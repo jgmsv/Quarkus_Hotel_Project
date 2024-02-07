@@ -7,10 +7,13 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.mindera.dto.hotel.CreateHotelDto;
+import org.mindera.dto.hotel.FacilitiesDto;
 import org.mindera.dto.hotel.HotelGetDto;
 import org.mindera.service.hotel.HotelService;
+import org.mindera.util.exceptions.hotel.HotelAdressException;
 import org.mindera.util.exceptions.hotel.HotelDuplicationException;
 import org.mindera.util.exceptions.hotel.HotelExistsException;
+import org.mindera.util.exceptions.hotel.HotelFacilitiesException;
 import org.mindera.util.exceptions.room.RoomExistsException;
 import org.mindera.util.exceptions.room.RoomPriceException;
 
@@ -30,16 +33,28 @@ public class HotelController {
                 hotelService.addHotel(hotel)).build();
     }
 
-    @GET
-    public Response finAll() {
-        List<HotelGetDto> findAllHottel = hotelService.findAllHotels();
-        return Response.ok(findAllHottel).build();
-    }
-
     @PUT
     @Path("/updatePrice/{hotelN}/{roomNumber}/{price}")
     public Response updatePrice(@PathParam("hotelN") String hotelN, @PathParam("roomNumber") int roomNumber, @PathParam("price") int price) throws RoomExistsException, HotelExistsException, RoomPriceException {
         return Response.ok(hotelService.updateRoomPrice(hotelN, roomNumber, price)).build();
+    }
+
+    @GET
+    public Response finAll(@QueryParam("page") int page) {
+        List<HotelGetDto> findAllHottel = hotelService.findAllHotels(page);
+        return Response.ok(findAllHottel).build();
+    }
+
+    @GET
+    @Path("/findByFacilities")
+    public Response findHotelsByFacilities(List<FacilitiesDto> facilities) throws HotelFacilitiesException, HotelAdressException {
+        return Response.ok(hotelService.findHotelsByFacilities(facilities)).build();
+    }
+
+    @GET
+    @Path("/findByAddress/{location}")
+    public Response findHotelsByAddress(@PathParam("location") String location) throws HotelAdressException {
+        return Response.ok(hotelService.findHotelsByAddress(location)).build();
     }
 
     @GET
