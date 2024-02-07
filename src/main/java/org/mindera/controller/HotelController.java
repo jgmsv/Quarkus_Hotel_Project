@@ -7,13 +7,11 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.mindera.dto.hotel.CreateHotelDto;
-import org.mindera.dto.hotel.FacilitiesDto;
 import org.mindera.dto.hotel.HotelGetDto;
 import org.mindera.service.hotel.HotelService;
 import org.mindera.util.exceptions.hotel.HotelAdressException;
 import org.mindera.util.exceptions.hotel.HotelDuplicationException;
 import org.mindera.util.exceptions.hotel.HotelExistsException;
-import org.mindera.util.exceptions.hotel.HotelFacilitiesException;
 import org.mindera.util.exceptions.room.RoomExistsException;
 import org.mindera.util.exceptions.room.RoomPriceException;
 
@@ -46,15 +44,9 @@ public class HotelController {
     }
 
     @GET
-    @Path("/findByFacilities")
-    public Response findHotelsByFacilities(List<FacilitiesDto> facilities) throws HotelFacilitiesException, HotelAdressException {
-        return Response.ok(hotelService.findHotelsByFacilities(facilities)).build();
-    }
-
-    @GET
     @Path("/findByAddress/{location}")
-    public Response findHotelsByAddress(@PathParam("location") String location) throws HotelAdressException {
-        return Response.ok(hotelService.findHotelsByAddress(location)).build();
+    public Response findHotelsByAddress(@PathParam("location") String location, int page) throws HotelAdressException {
+        return Response.ok(hotelService.findHotelsByAddress(location, page)).build();
     }
 
     @GET

@@ -4,8 +4,27 @@ import com.mongodb.client.MongoClient;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.mindera.dto.hotel.CreateHotelDto;
+import org.mindera.dto.hotel.CreateRoomDto;
+import org.mindera.dto.hotel.HotelGetDto;
+import org.mindera.model.hotel.Facilities;
+import org.mindera.model.hotel.Hotel;
+import org.mindera.model.hotel.RoomType;
 import org.mindera.repository.HotelRepository;
 import org.mindera.service.hotel.HotelService;
+import org.mindera.service.hotel.HotelServiceImpl;
+import org.mindera.util.exceptions.hotel.HotelAdressException;
+import org.mindera.util.exceptions.hotel.HotelDuplicationException;
+import org.mindera.util.exceptions.hotel.HotelExistsException;
+import org.mindera.util.exceptions.room.RoomExistsException;
+import org.mindera.util.exceptions.room.RoomPriceException;
+import org.mindera.util.messages.MessagesExceptions;
+
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
 public class hotelServiceTest {
@@ -25,7 +44,7 @@ public class hotelServiceTest {
 
     //TODO: check validation constraints
     //TODO: check exception and messages
-/*
+
     @Test
     public void testAddHotel() throws HotelDuplicationException, HotelExistsException {
         // Given
@@ -37,7 +56,8 @@ public class hotelServiceTest {
                         new CreateRoomDto(101, 1, RoomType.SINGLEROOM, 100),
                         new CreateRoomDto(102, 2, RoomType.TRIPLEROOM, 150),
                         new CreateRoomDto(103, 3, RoomType.DELUXEROOM, 200)
-                ));
+                ),
+                Set.of(Facilities.BAR, Facilities.SPA, Facilities.EXTERIORSWIMMINGPOOL));
 
         // When
         Hotel addedHotel = hotelService.addHotel(createHotelDto);
@@ -61,11 +81,12 @@ public class hotelServiceTest {
                         new CreateRoomDto(101, 1, RoomType.SINGLEROOM, 100),
                         new CreateRoomDto(102, 2, RoomType.TRIPLEROOM, 150),
                         new CreateRoomDto(103, 3, RoomType.DELUXEROOM, 200)
-                ));
+                ),
+                Set.of(Facilities.BAR, Facilities.SPA, Facilities.EXTERIORSWIMMINGPOOL));
         hotelService.addHotel(createHotelDto);
 
         // When
-        List<HotelGetDto> hotels = hotelService.findAllHotels();
+        List<HotelGetDto> hotels = hotelService.findAllHotels(1);
 
         // Then
         assertEquals(1, hotels.size());
@@ -86,7 +107,8 @@ public class hotelServiceTest {
                         new CreateRoomDto(101, 1, RoomType.SINGLEROOM, 100),
                         new CreateRoomDto(102, 2, RoomType.TRIPLEROOM, 150),
                         new CreateRoomDto(103, 3, RoomType.DELUXEROOM, 200)
-                ));
+                ),
+                Set.of(Facilities.BAR, Facilities.SPA, Facilities.EXTERIORSWIMMINGPOOL));
         hotelService.addHotel(createHotelDto);
 
         // When
@@ -107,7 +129,8 @@ public class hotelServiceTest {
                         new CreateRoomDto(101, 1, RoomType.SINGLEROOM, 100),
                         new CreateRoomDto(102, 2, RoomType.TRIPLEROOM, 150),
                         new CreateRoomDto(103, 3, RoomType.DELUXEROOM, 200)
-                ));
+                ),
+                Set.of(Facilities.BAR, Facilities.SPA, Facilities.EXTERIORSWIMMINGPOOL));
         hotelService.addHotel(createHotelDto);
 
         // When
@@ -118,7 +141,41 @@ public class hotelServiceTest {
         assertEquals("Sample Address", hotel.location());
         assertEquals(3, hotel.rooms().size());
         assertEquals(102, hotel.rooms().stream().filter(hotels1 -> hotels1.getRoomNumber() == 102).findFirst().get().getRoomNumber());
-    }*/
+    }
+
+
+    @Test
+    public void testAddHotel_DuplicateHotel() throws HotelDuplicationException, HotelExistsException {
+
+
+        CreateHotelDto createHotelDto = new CreateHotelDto("Strada", "Porto", "234181306",
+                Set.of(new CreateRoomDto(101, 1, RoomType.SINGLEROOM, 100),
+                        new CreateRoomDto(102, 2, RoomType.TRIPLEROOM, 150)),
+                Set.of(Facilities.BAR, Facilities.SPA, Facilities.EXTERIORSWIMMINGPOOL));
+
+
+        hotelService.addHotel(createHotelDto);
+
+
+        CreateHotelDto createHotelDto2 = new CreateHotelDto("Strada", "Porto", "234181306",
+                Set.of(new CreateRoomDto(101, 1, RoomType.SINGLEROOM, 100),
+                        new CreateRoomDto(102, 2, RoomType.TRIPLEROOM, 150)),
+                Set.of(Facilities.BAR, Facilities.SPA, Facilities.EXTERIORSWIMMINGPOOL));
+
+
+        HotelDuplicationException exception = assertThrows(HotelDuplicationException.class, () -> hotelService.addHotel(createHotelDto2));
+        assertTrue(exception.getMessage().contains(MessagesExceptions.DUPLICATEDHOTEL));
+    }
+
+    @Test
+    public void testFindHotelsByAddress_HotelNotFound() {
+        HotelServiceImpl hotelService = new HotelServiceImpl();
+        String address = "NonExistingAddress";
+
+        HotelAdressException exception = assertThrows(HotelAdressException.class, () -> hotelService.findHotelsByAddress(address, 0));
+        assertTrue(exception.getMessage().contains(MessagesExceptions.HOTELADDRESSNOTFOUND));
+    }
+
 
 }
 

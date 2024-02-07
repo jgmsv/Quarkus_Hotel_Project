@@ -2,7 +2,6 @@ package org.mindera.repository;
 
 
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
-import io.quarkus.mongodb.panache.PanacheQuery;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.mindera.model.hotel.Facilities;
 import org.mindera.model.hotel.Hotel;
@@ -18,12 +17,11 @@ public class HotelRepository implements PanacheMongoRepository<Hotel> {
     }
 
     public List<Hotel> findByFacilities(List<Facilities> facilities) {
-        PanacheQuery<Hotel> query = find("facilities in ?1", facilities.stream().findFirst().get());
-        return query.list();
+        return find("?1 in facilities", facilities.getFirst()).list();
     }
 
-    public List<Hotel> findByAddress(String location) {
-        return find("location", location).list();
+    public List<Hotel> findByAddress(String location, int page) {
+        return find("location", location).page(page, 10).list();
     }
 
 
