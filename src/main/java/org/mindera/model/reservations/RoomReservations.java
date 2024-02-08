@@ -1,6 +1,7 @@
 package org.mindera.model.reservations;
 
 import lombok.*;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.mindera.model.hotel.RoomType;
 
 @Getter
@@ -9,7 +10,9 @@ import org.mindera.model.hotel.RoomType;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoomReservations {
-    private int roomNumber;
 
+    @Schema(description = "Room number", example = "101")
+    private int roomNumber;
+    @Schema(description = "Rooms types for reservations", example = "room type: SINGLEROOM")
     private RoomType roomType;
 }
