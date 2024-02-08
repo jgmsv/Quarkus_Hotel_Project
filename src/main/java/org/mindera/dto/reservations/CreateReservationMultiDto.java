@@ -16,6 +16,7 @@ public record CreateReservationMultiDto(
         @NotNull
         LocalDate departure,
         @NotNull
+        @Pattern(regexp = "^[a-zA-Z0-9_-]+$")
         String hotelN,
         @NotNull
         String fullName,

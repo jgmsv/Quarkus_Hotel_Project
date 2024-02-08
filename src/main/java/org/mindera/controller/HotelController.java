@@ -38,7 +38,7 @@ public class HotelController {
     }
 
     @GET
-    public Response finAll(@QueryParam("page") int page) throws HotelExistsException {
+    public Response finAll(@QueryParam("page") int page) {
         List<HotelGetDto> findAllHottel = hotelService.findAllHotels(page);
         return Response.ok(findAllHottel).build();
     }

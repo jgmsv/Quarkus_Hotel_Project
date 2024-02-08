@@ -15,7 +15,7 @@ public interface HotelService {
 
     HotelGetDto addHotel(CreateHotelDto createHotelDto) throws HotelDuplicationException;
 
-    List<HotelGetDto> findAllHotels(int page) throws HotelExistsException;
+    List<HotelGetDto> findAllHotels(int page);
 
     HotelGetDto findHotelByHotelN(String hotelN) throws HotelExistsException;
 

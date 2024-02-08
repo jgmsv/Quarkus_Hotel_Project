@@ -50,7 +50,7 @@ public class ReservationServiceImpl implements ReservationService {
         ReservationsMulti reservationUpdate = ReservationConverter.dtoToArrivalDeparture(updateReservation);
 
         if (reservationUpdate.getArrival().isAfter(reservationUpdate.getDeparture())) {
-            throw new InvalidDateReservationException("Arrival date cannot be after departure date");
+            throw new InvalidDateReservationException(MessagesExceptions.INVALIDDATE);
         }
 
         for (RoomReservations roomReservation : reservationMulti.getRoomReservations()) {
