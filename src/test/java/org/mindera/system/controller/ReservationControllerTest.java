@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.apache.http.HttpHeaders;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mindera.dto.hotel.CreateHotelDto;
 import org.mindera.dto.hotel.CreateRoomDto;
@@ -72,10 +73,15 @@ public class ReservationControllerTest {
         mongoClient.getDatabase("reservationmultidb").getCollection("Reservations").drop();
     }
 
+    @BeforeEach
+    public void setUpHotel() {
+        mongoClient.getDatabase("hoteldb").getCollection("Hotels").drop();
+    }
+
 
     @Test
     public void testCreateReservation() throws HotelDuplicationException {
-
+        hotelService.addHotel(createHoteldemo());
         given()
                 .body(reservationDemo)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -87,7 +93,8 @@ public class ReservationControllerTest {
     }
 
     @Test
-    public void testCreateduplicationReservation() throws ReservationExistsException, RoomExistsException, HotelExistsException {
+    public void testCreateduplicationReservation() throws ReservationExistsException, RoomExistsException, HotelExistsException, HotelDuplicationException {
+        hotelService.addHotel(createHoteldemo());
         CreateReservationMultiDto reservationDemo3 = createReservationDemo();
         reservationService.addReservation(reservationDemo3);
         CreateReservationMultiDto reservationDemo4 = createReservationRoomDuplication();
@@ -102,7 +109,8 @@ public class ReservationControllerTest {
     }
 
     @Test
-    public void testCreateReservationWrongRoom() throws ReservationExistsException, RoomExistsException, HotelExistsException {
+    public void testCreateReservationWrongRoom() throws ReservationExistsException, RoomExistsException, HotelExistsException, HotelDuplicationException {
+        hotelService.addHotel(createHoteldemo());
         CreateReservationMultiDto reservationDemo4 = createReservationDemo();
         reservationService.addReservation(reservationDemo4);
 
@@ -117,7 +125,8 @@ public class ReservationControllerTest {
     }
 
     @Test
-    public void testCreateReservationWrongHotel() throws ReservationExistsException, RoomExistsException, HotelExistsException {
+    public void testCreateReservationWrongHotel() throws ReservationExistsException, RoomExistsException, HotelExistsException, HotelDuplicationException {
+        hotelService.addHotel(createHoteldemo());
         CreateReservationMultiDto reservationDemo = createReservationHotelW();
         reservationService.addReservation(reservationDemo);
 
@@ -132,7 +141,8 @@ public class ReservationControllerTest {
     }
 
     @Test
-    public void testUpdateReservation() throws ReservationExistsException, RoomExistsException, HotelExistsException {
+    public void testUpdateReservation() throws ReservationExistsException, RoomExistsException, HotelExistsException, HotelDuplicationException {
+        hotelService.addHotel(createHoteldemo());
         CreateReservationMultiDto createReservation = createReservationDemo();
         ReservationsMulti reservationsMulti = reservationService.addReservation(createReservation);
         ObjectId id = reservationsMulti.id;
@@ -147,7 +157,8 @@ public class ReservationControllerTest {
     }
 
     @Test
-    public void testUpdateInvalidDateReservation() throws ReservationExistsException, RoomExistsException, HotelExistsException {
+    public void testUpdateInvalidDateReservation() throws ReservationExistsException, RoomExistsException, HotelExistsException, HotelDuplicationException {
+        hotelService.addHotel(createHoteldemo());
         CreateReservationMultiDto createReservation = createReservationDemo();
         ReservationsMulti reservationsMulti = reservationService.addReservation(createReservation);
         ObjectId id = reservationsMulti.id;
@@ -163,7 +174,8 @@ public class ReservationControllerTest {
     }
 
     @Test
-    public void testUpdateInvalidDates() throws ReservationExistsException, RoomExistsException, HotelExistsException {
+    public void testUpdateInvalidDates() throws ReservationExistsException, RoomExistsException, HotelExistsException, HotelDuplicationException {
+        hotelService.addHotel(createHoteldemo());
         CreateReservationMultiDto createReservation = createReservationDemo();
         ReservationsMulti reservationsMulti = reservationService.addReservation(createReservation);
         ObjectId id = reservationsMulti.id;
@@ -179,7 +191,8 @@ public class ReservationControllerTest {
     }
 
     @Test
-    public void testFindAllReservations() throws ReservationExistsException, RoomExistsException, HotelExistsException {
+    public void testFindAllReservations() throws ReservationExistsException, RoomExistsException, HotelExistsException, HotelDuplicationException {
+        hotelService.addHotel(createHoteldemo());
         CreateReservationMultiDto createReservation = createReservationDemo();
         reservationService.addReservation(createReservation);
 
@@ -191,7 +204,8 @@ public class ReservationControllerTest {
     }
 
     @Test
-    public void testFindReservationById() throws ReservationExistsException, RoomExistsException, HotelExistsException {
+    public void testFindReservationById() throws ReservationExistsException, RoomExistsException, HotelExistsException, HotelDuplicationException {
+        hotelService.addHotel(createHoteldemo());
         CreateReservationMultiDto createReservation = createReservationDemo();
         ReservationsMulti reservationsMulti = reservationService.addReservation(createReservation);
         ObjectId id = reservationsMulti.id;
@@ -261,11 +275,7 @@ public class ReservationControllerTest {
                 Set.of(Facilities.BAR));
     }
 
-    public CreateHotelDto createHoteldemo2() throws HotelDuplicationException {
-        return new CreateHotelDto("HotelTest2", "Sample Address2", "912345672",
-                Set.of(new CreateRoomDto(101, 1, RoomType.SINGLEROOM, 100)),
-                Set.of(Facilities.BAR));
-    }
+
 }
 
 
