@@ -2,6 +2,7 @@ package org.mindera.service.hotel;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.mindera.converter.hotel.HotelConverter;
 import org.mindera.dto.hotel.CreateHotelDto;
 import org.mindera.dto.hotel.HotelGetDto;
 import org.mindera.model.hotel.Hotel;
@@ -27,14 +28,14 @@ public class HotelServiceImpl implements HotelService {
     HotelRepository hotelRepository;
 
     @Override
-    public Hotel addHotel(CreateHotelDto createHotelDto) throws HotelDuplicationException {
+    public HotelGetDto addHotel(CreateHotelDto createHotelDto) throws HotelDuplicationException {
         Hotel hotel = dtoToHotel(createHotelDto);
         if (hotelRepository.isHotelNUnique(hotel.getHotelN())) {
             hotelRepository.persist(hotel);
         } else {
             throw new HotelDuplicationException(MessagesExceptions.DUPLICATEDHOTEL);
         }
-        return hotel;
+        return HotelConverter.hotelToDto(hotel);
     }
 
     @Override

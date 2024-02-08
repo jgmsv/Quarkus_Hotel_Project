@@ -7,7 +7,9 @@ import org.mindera.model.hotel.Facilities;
 import java.util.Set;
 
 public record CreateHotelDto(
-        @NotNull()
+
+        @NotNull
+        @Pattern(regexp = "^[a-zA-Z0-9_-]+$")
         String hotelN,
         @NotNull
         String location,

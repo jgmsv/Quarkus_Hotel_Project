@@ -2,7 +2,6 @@ package org.mindera.service.hotel;
 
 import org.mindera.dto.hotel.CreateHotelDto;
 import org.mindera.dto.hotel.HotelGetDto;
-import org.mindera.model.hotel.Hotel;
 import org.mindera.util.exceptions.hotel.HotelAdressException;
 import org.mindera.util.exceptions.hotel.HotelDuplicationException;
 import org.mindera.util.exceptions.hotel.HotelExistsException;
@@ -14,9 +13,9 @@ import java.util.List;
 public interface HotelService {
 
 
-    Hotel addHotel(CreateHotelDto createHotelDto) throws HotelExistsException, HotelDuplicationException;
+    HotelGetDto addHotel(CreateHotelDto createHotelDto) throws HotelDuplicationException;
 
-    List<HotelGetDto> findAllHotels(int page);
+    List<HotelGetDto> findAllHotels(int page) throws HotelExistsException;
 
     HotelGetDto findHotelByHotelN(String hotelN) throws HotelExistsException;
 

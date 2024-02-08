@@ -26,9 +26,9 @@ public class HotelController {
     HotelService hotelService;
 
     @POST
-    public Response add(@Valid CreateHotelDto hotel) throws HotelExistsException, HotelDuplicationException {
+    public Response add(@Valid CreateHotelDto hotel) throws HotelDuplicationException {
         return Response.ok(
-                hotelService.addHotel(hotel)).build();
+                hotelService.addHotel(hotel)).status(Response.Status.CREATED).build();
     }
 
     @PUT
@@ -38,14 +38,14 @@ public class HotelController {
     }
 
     @GET
-    public Response finAll(@QueryParam("page") int page) {
+    public Response finAll(@QueryParam("page") int page) throws HotelExistsException {
         List<HotelGetDto> findAllHottel = hotelService.findAllHotels(page);
         return Response.ok(findAllHottel).build();
     }
 
     @GET
     @Path("/findByAddress/{location}")
-    public Response findHotelsByAddress(@PathParam("location") String location, int page) throws HotelAdressException {
+    public Response findHotelsByAddress(@PathParam("location") String location, @QueryParam("page") int page) throws HotelAdressException {
         return Response.ok(hotelService.findHotelsByAddress(location, page)).build();
     }
 

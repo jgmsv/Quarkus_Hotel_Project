@@ -1,19 +1,17 @@
-package org.mindera.system;
+package org.mindera.system.service;
 
 import com.mongodb.client.MongoClient;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mindera.dto.hotel.CreateHotelDto;
 import org.mindera.dto.hotel.CreateRoomDto;
 import org.mindera.dto.hotel.HotelGetDto;
 import org.mindera.model.hotel.Facilities;
-import org.mindera.model.hotel.Hotel;
 import org.mindera.model.hotel.RoomType;
 import org.mindera.repository.HotelRepository;
 import org.mindera.service.hotel.HotelService;
-import org.mindera.service.hotel.HotelServiceImpl;
 import org.mindera.util.exceptions.hotel.HotelAdressException;
 import org.mindera.util.exceptions.hotel.HotelDuplicationException;
 import org.mindera.util.exceptions.hotel.HotelExistsException;
@@ -36,7 +34,7 @@ public class hotelServiceTest {
     @Inject
     HotelService hotelService;
 
-    @AfterEach
+    @BeforeEach
     public void setUp() {
         mongoClient.getDatabase("hoteldb").getCollection("Hotels").drop();
 
@@ -60,14 +58,13 @@ public class hotelServiceTest {
                 Set.of(Facilities.BAR, Facilities.SPA, Facilities.EXTERIORSWIMMINGPOOL));
 
         // When
-        Hotel addedHotel = hotelService.addHotel(createHotelDto);
+        HotelGetDto addedHotel = hotelService.addHotel(createHotelDto);
 
         // Then
-        assertNotNull(addedHotel.id); // Check if ID is set
-        assertEquals("HotelTest", addedHotel.getHotelN());
-        assertEquals("Sample Address", addedHotel.getLocation());
-        assertEquals(3, addedHotel.getRooms().size());
-        assertEquals(103, addedHotel.getRooms().stream().filter(hotels -> hotels.getRoomNumber() == 103).findFirst().get().getRoomNumber());
+        assertEquals("HotelTest", addedHotel.hotelN());
+        assertEquals("Sample Address", addedHotel.location());
+        assertEquals(3, addedHotel.rooms().size());
+        assertEquals(103, addedHotel.rooms().stream().filter(hotels -> hotels.getRoomNumber() == 103).findFirst().get().getRoomNumber());
     }
 
     @Test
@@ -145,7 +142,7 @@ public class hotelServiceTest {
 
 
     @Test
-    public void testAddHotel_DuplicateHotel() throws HotelDuplicationException, HotelExistsException {
+    public void testAddHotel_DuplicateHotel() throws HotelDuplicationException {
 
 
         CreateHotelDto createHotelDto = new CreateHotelDto("Strada", "Porto", "234181306",
@@ -168,14 +165,35 @@ public class hotelServiceTest {
     }
 
     @Test
-    public void testFindHotelsByAddress_HotelNotFound() {
-        HotelServiceImpl hotelService = new HotelServiceImpl();
+    public void testFindHotelsByAddress_HotelNotFound() throws HotelDuplicationException {
+        CreateHotelDto createHotelDto = new CreateHotelDto("Strada", "Porto", "234181306",
+                Set.of(new CreateRoomDto(101, 1, RoomType.SINGLEROOM, 100),
+                        new CreateRoomDto(102, 2, RoomType.TRIPLEROOM, 150)),
+                Set.of(Facilities.BAR, Facilities.SPA, Facilities.EXTERIORSWIMMINGPOOL));
+        hotelService.addHotel(createHotelDto);
         String address = "NonExistingAddress";
 
         HotelAdressException exception = assertThrows(HotelAdressException.class, () -> hotelService.findHotelsByAddress(address, 0));
         assertTrue(exception.getMessage().contains(MessagesExceptions.HOTELADDRESSNOTFOUND));
     }
 
+
+    @Test
+    public void testUpdateRoomPrice_Exceptions() throws HotelDuplicationException {
+        CreateHotelDto createHotelDto = new CreateHotelDto("Strada", "Porto", "234181306",
+                Set.of(new CreateRoomDto(101, 1, RoomType.SINGLEROOM, 100)),
+                Set.of(Facilities.BAR, Facilities.SPA, Facilities.EXTERIORSWIMMINGPOOL));
+        hotelService.addHotel(createHotelDto);
+
+        HotelExistsException exception1 = assertThrows(HotelExistsException.class, () -> hotelService.updateRoomPrice("NonExistingHotel", 102, 90));
+        assertTrue(exception1.getMessage().contains(MessagesExceptions.HOTELERROR));
+
+        RoomExistsException exception2 = assertThrows(RoomExistsException.class, () -> hotelService.updateRoomPrice("Strada", 100, 90));
+        assertTrue(exception2.getMessage().contains(MessagesExceptions.ROOMERROR));
+
+        RoomPriceException exception3 = assertThrows(RoomPriceException.class, () -> hotelService.updateRoomPrice("Strada", 101, 50));
+        assertTrue(exception3.getMessage().contains(MessagesExceptions.PRICEERROR));
+    }
 
 }
 

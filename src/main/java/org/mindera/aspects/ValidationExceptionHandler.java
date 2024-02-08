@@ -5,10 +5,17 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
+import java.util.Date;
+
 @Provider
 public class ValidationExceptionHandler implements ExceptionMapper<ConstraintViolationException> {
     @Override
     public Response toResponse(ConstraintViolationException e) {
-        return null;
+        Error error = Error.builder()
+                .message(e.getMessage())
+                .status(Response.Status.BAD_REQUEST.getStatusCode())
+                .timestamp(new Date())
+                .build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
     }
 }
