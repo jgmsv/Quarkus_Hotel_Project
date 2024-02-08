@@ -21,13 +21,6 @@ public class ReservationsController {
     @Inject
     ReservationService reservationService;
 
-    /*@POST
-    @Path("/{hotelN}/{roomNumber}")
-    public Response add(@PathParam("hotelN") String hotelN, @PathParam("roomNumber") RoomType roomType, CreateReservationDto reservation) throws RoomExistsException, HotelExistsException, InvalidDateReservationException, ReservationExistsException {
-        return Response.ok(reservationService.addReservationToRoom(hotelN, roomType, reservation)).status(Response.Status.CREATED).build();
-
-    }*/
-
     @POST
     @Path("/{hotelN}/")
     public Response add(CreateReservationMultiDto reservation) throws HotelExistsException, RoomExistsException, ReservationExistsException {
