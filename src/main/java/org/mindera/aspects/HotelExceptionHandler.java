@@ -9,7 +9,12 @@ import org.mindera.util.messages.MessagesExceptions;
 @Provider
 public class HotelExceptionHandler implements ExceptionMapper<HotelException> {
 
-
+    /**
+     * Maps the given HotelException to an appropriate HTTP response.
+     *
+     * @param e the HotelException to be mapped
+     * @return the HTTP response corresponding to the HotelException
+     */
     @Override
     public Response toResponse(HotelException e) {
         if (e instanceof HotelDuplicationException) {

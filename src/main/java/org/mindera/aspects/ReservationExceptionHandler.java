@@ -10,6 +10,10 @@ import org.mindera.util.exceptions.reservations.ReservationExistsException;
 
 @Provider
 public class ReservationExceptionHandler implements ExceptionMapper<ReservationException> {
+    /**
+     * Exception handler for ReservationException.
+     * This class implements the ExceptionMapper interface to handle different types of ReservationException.
+     */
     @Override
     public Response toResponse(ReservationException e) {
         if (e instanceof InvalidReservationIdException) {

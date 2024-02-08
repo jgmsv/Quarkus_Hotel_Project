@@ -9,6 +9,12 @@ import java.util.Date;
 
 @Provider
 public class ValidationExceptionHandler implements ExceptionMapper<ConstraintViolationException> {
+    /**
+     * Converts a ConstraintViolationException to a Response object.
+     *
+     * @param e the ConstraintViolationException to be converted
+     * @return the Response object
+     */
     @Override
     public Response toResponse(ConstraintViolationException e) {
         Error error = Error.builder()
